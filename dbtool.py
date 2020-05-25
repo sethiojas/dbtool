@@ -1,9 +1,33 @@
 from openpyxl import load_workbook
 import sqlite3
 import sys
+import argparse
 import helper
 
-path, db_name = helper.retrieve_path_and_dbname(sys.argv)
+parser = argparse.ArgumentParser(formatter_class=argparse.RawDescriptionHelpFormatter,
+                                description = 'DBTool : Convert spreadsheet to SQlite3 Database',
+                                epilog='''Examples
+            python dbtool.py -i /home/test.xlsx -o my
+
+            python dbtool.py --in /home/example.xlsx
+
+            python dbtool --in /home/this_file.xlsz --out mydatabase
+            ''')
+
+parser.add_argument('-i',
+                    '--infile',
+                    help="Input file path (spreadsheet)",
+                    required=True
+                    )
+parser.add_argument('-o',
+                    '--outfile',
+                    help="output file name (database)",
+                    required=False
+                    )
+
+args = parser.parse_args()
+
+path, db_name = helper.retrieve_path_and_dbname(args.infile, args.outfile)
 
 workbook = load_workbook(path, read_only=True)
 table_name = workbook.sheetnames[0].upper()
