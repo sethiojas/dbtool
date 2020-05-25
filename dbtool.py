@@ -8,12 +8,19 @@ path, db_name = helper.retrieve_path_and_dbname(sys.argv)
 workbook = load_workbook(path, read_only=True)
 table_name = workbook.sheetnames[0].upper()
 sheet = workbook.active
-sheet_iter = sheet.values
+sheet_iter = sheet.values #iterator containing every row
 
+#first row of spreadsheet
 column_names = tuple(next(sheet_iter))
-column_names = tuple(map(lambda elem: elem.upper().replace(" ", "_"), column_names))
+column_names = tuple(
+            map(
+                lambda elem: elem.upper().replace(" ", "_"), #make column names uppercase and
+                column_names                                 #replace spaces with underscore
+               )
+            )
 
-datatypes = helper.get_datatypes(sheet_iter)
+#:arg: - [tuple] second row of spreadsheet 
+datatypes = helper.get_datatypes(tuple(next(sheet_iter)))
 
 create_table_query = f'create table {table_name} ('
 joined_colName_and_types = ', '.join(f"{i} {j}" for (i,j) in zip(column_names, datatypes))
@@ -24,8 +31,9 @@ cur = conn.cursor()
 
 cur.execute(create_table_query)
 
+#reset iterator
 sheet_iter = sheet.values
-next(sheet_iter)
+next(sheet_iter) #ignore first row
 try:
     while(True):
         row = map(lambda x: helper.format_value(x), next(sheet_iter))
