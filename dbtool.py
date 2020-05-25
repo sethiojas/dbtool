@@ -26,15 +26,17 @@ create_table_query = f'create table {table_name} ('
 joined_colName_and_types = ', '.join(f"{i} {j}" for (i,j) in zip(column_names, datatypes))
 create_table_query += joined_colName_and_types + ');'
 
-conn = sqlite3.connect(db_name)
-cur = conn.cursor()
-
-cur.execute(create_table_query)
-
 #reset iterator
 sheet_iter = sheet.values
 next(sheet_iter) #ignore first row
+
+#establish db connection
+conn = sqlite3.connect(db_name)
+cur = conn.cursor()
+
+#execute all sql queries
 try:
+    cur.execute(create_table_query)
     while(True):
         row = map(lambda x: helper.format_value(x), next(sheet_iter))
         insert_query = f'insert into {table_name} values('
