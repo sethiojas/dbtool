@@ -15,38 +15,33 @@ def format_value(col_value):
     else:
         return col_value
 
-def retrieve_path_and_dbname(arguments):
+def retrieve_path_and_dbname(in_path, in_db):
     '''
-    param :arguments: - sys.argv of dbtool.py
+    param :in_path:   - entered file path (spreadsheet)
+    param :in_db:     - entered database name (can be `None`)
     returns           - [tuple] path to spreadsheet, name of database
 
     handles following Exceptions:
-        * path to file is not specified
-        * too many input arguments
         * path does not exists/path is not a file
         * format of file is not supported
     '''
     try:
-        supported_formats = tuple({'xlsx', 'xlsm', 'xlxt', 'xltm'})
-
-        if (len(arguments) < 2):
-            raise Exception('Path to file not specified')
-        elif (len(arguments) > 2):
-            raise Exception('Too many input arguments')
-
-        path = arguments[1]
-        
-        if(not os.path.isfile(path)):
+        if(not os.path.isfile(in_path)):
             raise Exception('Path does not exists or is not of a file')
         
-        filename = os.path.split(path)[1]
+        filename = os.path.split(in_path)[1]
         dbname, extension = filename.split(".")
 
+        #if in_db is not null make it dbname otherwise
+        #the above derived name will be used
+        dbname = in_db if in_db is not None else dbname
+
+        supported_formats = tuple({'xlsx', 'xlsm', 'xlxt', 'xltm'})
         if (extension not in supported_formats):
             raise Exception(f'''Format not supported '{extension}'.
 Supported formats are: .xlsx,.xlsm,.xltx,.xltm''')
 
-        return (path, dbname + '.db')
+        return (in_path, dbname + '.db')
 
     except Exception as e:
         print(e)
